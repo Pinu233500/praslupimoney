@@ -304,6 +304,59 @@
 
       </div>
     </main>
+    <!-- === FITUR BARU: Siklus Gaji AI === -->
+<div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mt-6">
+  <div class="flex items-center space-x-3 mb-4">
+    <div class="bg-indigo-100 p-2 rounded-xl text-indigo-600">
+      <i data-lucide="calculator" class="w-5 h-5"></i>
+    </div>
+    <div>
+      <h3 class="font-bold text-slate-800 text-sm">Analisis Siklus Gaji</h3>
+      <p class="text-xs text-slate-500">Panduan batas pengeluaran agar tidak defisit</p>
+    </div>
+  </div>
+
+  <!-- Form Input Gaji & Tanggal -->
+  <div class="space-y-3 mb-4">
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1">Total Gaji Bulanan (Rp)</label>
+      <input type="number" id="inputGaji" placeholder="Contoh: 5000000" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Gajihan Berikutnya</label>
+      <input type="date" id="inputTglGaji" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    </div>
+    <button onclick="hitungSiklusGaji()" class="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold hover:bg-indigo-700 transition duration-200 flex items-center justify-center space-x-1">
+      <i data-lucide="sparkles" class="w-4 h-4"></i>
+      <span>Buat Panduan AI</span>
+    </button>
+  </div>
+
+  <!-- Area Hasil Panduan AI -->
+  <div id="hasilSiklusGaji" class="hidden text-xs space-y-3 pt-3 border-t border-slate-100">
+    <div class="bg-slate-50 p-3 rounded-xl">
+      <p class="text-slate-500">Batas Harian Aman:</p>
+      <p id="batasHarian" class="text-base font-bold text-indigo-600">Rp 0</p>
+      <p id="sisaHari" class="text-[10px] text-slate-400 mt-0.5">0 hari menuju gajihan</p>
+    </div>
+
+    <!-- Yang Diperbolehkan -->
+    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+      <p class="font-bold text-emerald-800 flex items-center gap-1 mb-1">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Diperbolehkan:
+      </p>
+      <ul id="listBoleh" class="list-disc list-inside text-emerald-700 space-y-1 pl-1"></ul>
+    </div>
+
+    <!-- Yang Tidak Diperbolehkan -->
+    <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+      <p class="font-bold text-rose-800 flex items-center gap-1 mb-1">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i> Dilarang / Hindari:
+      </p>
+      <ul id="listDilarang" class="list-disc list-inside text-rose-700 space-y-1 pl-1"></ul>
+    </div>
+  </div>
+</div>
   </div>
 
   <script>
@@ -751,6 +804,57 @@
         initMainApp();
       }
     });
+    // === FUNGSI LOGIKA SIKLUS GAJI AI ===
+function hitungSiklusGaji() {
+  const gaji = parseFloat(document.getElementById('inputGaji').value);
+  const tglGaji = new Date(document.getElementById('inputTglGaji').value);
+  const hariIni = new Date();
+
+  if (!gaji || isNaN(tglGaji.getTime())) {
+    alert("Silakan masukkan nominal gaji dan tanggal gajihan berikutnya!");
+    return;
+  }
+
+  // Hitung selisih hari menuju gajihan berikutnya
+  const diffTime = tglGaji - hariIni;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) {
+    alert("Tanggal gajihan berikutnya harus lebih dari hari ini!");
+    return;
+  }
+
+  // Alokasi Standar Manajemen Keuangan (50% Kebutuhan, 30% Keinginan, 20% Tabungan)
+  const tabungan = gaji * 0.20;
+  const sisaPengeluaran = gaji - tabungan;
+  const batasHarian = Math.floor(sisaPengeluaran / diffDays);
+
+  // Tampilkan Hasil
+  document.getElementById('hasilSiklusGaji').classList.remove('hidden');
+  document.getElementById('batasHarian').innerText = `Rp ${batasHarian.toLocaleString('id-ID')} / hari`;
+  document.getElementById('sisaHari').innerText = `${diffDays} hari menuju gajihan berikutnya`;
+
+  // Rekomendasi Boleh vs Dilarang
+  const listBoleh = document.getElementById('listBoleh');
+  const listDilarang = document.getElementById('listDilarang');
+
+  listBoleh.innerHTML = `
+    <li>Kebutuhan pokok maksimal <b>Rp ${Math.floor(batasHarian * 0.7).toLocaleString('id-ID')}</b>/hari.</li>
+    <li>Tabungan/Investasi Wajib: <b>Rp ${tabungan.toLocaleString('id-ID')}</b> disisihkan di awal.</li>
+    <li>Jajan/Hiburan ringan maksimal <b>Rp ${Math.floor(batasHarian * 0.3).toLocaleString('id-ID')}</b>/hari.</li>
+  `;
+
+  listDilarang.innerHTML = `
+    <li>Dilarang transaksi impulsif di atas <b>Rp ${batasHarian.toLocaleString('id-ID')}</b> tanpa perencanaan.</li>
+    <li>Hindari menggunakan Paylater atau pinjaman untuk belanja non-pokok.</li>
+    <li>Mengambil dana tabungan sebesar <b>Rp ${tabungan.toLocaleString('id-ID')}</b> sebelum gajihan.</li>
+  `;
+
+  // Render ulang icon Lucide jika ada
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
   </script>
 </body>
 </html>
