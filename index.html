@@ -233,16 +233,19 @@
 
         <!-- Chart & Daftar Transaksi -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Chart -->
-          <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center">
+          <!-- Chart Container (Diperbaiki agar diagram selalu tampil rapi) -->
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center min-h-[260px]">
             <h3 class="text-sm font-semibold text-slate-700 mb-3 w-full text-left">Sebaran Pengeluaran</h3>
-            <div class="w-full max-w-[220px]">
+            <div id="chart-empty-msg" class="text-xs text-slate-400 text-center py-8 hidden">
+              (Belum ada transaksi pengeluaran pada bulan ini)
+            </div>
+            <div class="w-full max-w-[220px] aspect-square relative flex items-center justify-center">
               <canvas id="expenseChart"></canvas>
             </div>
           </div>
 
           <!-- History List -->
-          <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col min-h-[260px]">
             <div class="flex justify-between items-center mb-3">
               <h3 class="text-sm font-semibold text-slate-700">Riwayat Transaksi</h3>
             </div>
@@ -254,7 +257,7 @@
 
       </div>
 
-      <!-- RIGHT SECTION: AI Optimization & Insights -->
+      <!-- RIGHT SECTION: AI Optimization, Siklus Gaji, & Insights -->
       <div class="space-y-6">
 
         <!-- AI Advisor Box -->
@@ -290,12 +293,66 @@
           </div>
         </div>
 
+        <!-- FITUR SIKLUS GAJI AI (Penempatan Rapi di Sidebar Kanan) -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center space-x-3">
+            <div class="bg-indigo-100 p-2.5 rounded-xl text-indigo-600">
+              <i data-lucide="calculator" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">Analisis Siklus Gaji</h3>
+              <p class="text-[11px] text-slate-500">Panduan batas pengeluaran harian agar tidak defisit</p>
+            </div>
+          </div>
+
+          <!-- Form Input Gaji & Tanggal -->
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Total Gaji Bulanan (Rp)</label>
+              <input type="number" id="inputGaji" placeholder="Contoh: 5000000" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Gajihan Berikutnya</label>
+              <input type="date" id="inputTglGaji" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button onclick="hitungSiklusGaji()" class="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold hover:bg-indigo-700 transition duration-200 flex items-center justify-center space-x-1 shadow-sm">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>Buat Panduan AI</span>
+            </button>
+          </div>
+
+          <!-- Area Hasil Panduan AI -->
+          <div id="hasilSiklusGaji" class="hidden text-xs space-y-3 pt-3 border-t border-slate-100">
+            <div class="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100 text-center">
+              <p class="text-slate-500 text-[11px]">Batas Pengeluaran Harian Aman:</p>
+              <p id="batasHarian" class="text-lg font-bold text-indigo-600 my-0.5">Rp 0</p>
+              <p id="sisaHari" class="text-[10px] text-slate-400">0 hari menuju gajihan berikutnya</p>
+            </div>
+
+            <!-- Yang Diperbolehkan -->
+            <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
+              <p class="font-bold text-emerald-800 flex items-center gap-1 mb-1 text-[11px]">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i> Diperbolehkan:
+              </p>
+              <ul id="listBoleh" class="list-disc list-inside text-emerald-700 text-[11px] space-y-1 pl-0.5"></ul>
+            </div>
+
+            <!-- Yang Tidak Diperbolehkan -->
+            <div class="bg-rose-50/60 p-3 rounded-xl border border-rose-100">
+              <p class="font-bold text-rose-800 flex items-center gap-1 mb-1 text-[11px]">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i> Dilarang / Hindari:
+              </p>
+              <ul id="listDilarang" class="list-disc list-inside text-rose-700 text-[11px] space-y-1 pl-0.5"></ul>
+            </div>
+          </div>
+        </div>
+
         <!-- Tips Keuangan Cepat -->
         <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 text-xs space-y-2">
           <p class="font-semibold flex items-center gap-1">
             <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600"></i> Aturan 50/30/20 oleh AI:
           </p>
-          <ul class="list-disc pl-4 space-y-1 opacity-90">
+          <ul class="list-disc pl-4 space-y-1 opacity-90 text-[11px]">
             <li><b>50% Kebutuhan:</b> Tagihan, Makan, Belanja Bulanan.</li>
             <li><b>30% Keinginan:</b> Hiburan, Jajanan, Hobi.</li>
             <li><b>20% Masa Depan:</b> Tabungan, Investasi, Dana Darurat.</li>
@@ -304,59 +361,7 @@
 
       </div>
     </main>
-    <!-- === FITUR BARU: Siklus Gaji AI === -->
-<div class="max-w-xl mx-auto bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mt-6">
-  <div class="flex items-center space-x-3 mb-4">
-    <div class="bg-indigo-100 p-2 rounded-xl text-indigo-600">
-      <i data-lucide="calculator" class="w-5 h-5"></i>
-    </div>
-    <div>
-      <h3 class="font-bold text-slate-800 text-sm">Analisis Siklus Gaji</h3>
-      <p class="text-xs text-slate-500">Panduan batas pengeluaran agar tidak defisit</p>
-    </div>
-  </div>
 
-  <!-- Form Input Gaji & Tanggal -->
-  <div class="space-y-3 mb-4">
-    <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1">Total Gaji Bulanan (Rp)</label>
-      <input type="number" id="inputGaji" placeholder="Contoh: 5000000" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-    </div>
-    <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Gajihan Berikutnya</label>
-      <input type="date" id="inputTglGaji" class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-    </div>
-    <button onclick="hitungSiklusGaji()" class="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold hover:bg-indigo-700 transition duration-200 flex items-center justify-center space-x-1">
-      <i data-lucide="sparkles" class="w-4 h-4"></i>
-      <span>Buat Panduan AI</span>
-    </button>
-  </div>
-
-  <!-- Area Hasil Panduan AI -->
-  <div id="hasilSiklusGaji" class="hidden text-xs space-y-3 pt-3 border-t border-slate-100">
-    <div class="bg-slate-50 p-3 rounded-xl">
-      <p class="text-slate-500">Batas Harian Aman:</p>
-      <p id="batasHarian" class="text-base font-bold text-indigo-600">Rp 0</p>
-      <p id="sisaHari" class="text-[10px] text-slate-400 mt-0.5">0 hari menuju gajihan</p>
-    </div>
-
-    <!-- Yang Diperbolehkan -->
-    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-      <p class="font-bold text-emerald-800 flex items-center gap-1 mb-1">
-        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Diperbolehkan:
-      </p>
-      <ul id="listBoleh" class="list-disc list-inside text-emerald-700 space-y-1 pl-1"></ul>
-    </div>
-
-    <!-- Yang Tidak Diperbolehkan -->
-    <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
-      <p class="font-bold text-rose-800 flex items-center gap-1 mb-1">
-        <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i> Dilarang / Hindari:
-      </p>
-      <ul id="listDilarang" class="list-disc list-inside text-rose-700 space-y-1 pl-1"></ul>
-    </div>
-  </div>
-</div>
   </div>
 
   <script>
@@ -638,8 +643,13 @@
       }
     }
 
+    // FUNGSI RENDER CHART YANG SUDAH DIPERBAIKI TOTAL
     function renderChart(filtered) {
-      const ctx = document.getElementById('expenseChart').getContext('2d');
+      const canvas = document.getElementById('expenseChart');
+      const emptyMsg = document.getElementById('chart-empty-msg');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
       const expenses = filtered.filter(t => t.type === 'expense' || t.type === 'Pengeluaran' || t.type === 'pengeluaran');
 
       const categoryTotals = {};
@@ -650,13 +660,22 @@
       const labels = Object.keys(categoryTotals);
       const data = Object.values(categoryTotals);
 
+      // Hapus chart lama jika ada
       if (chartInstance) {
         chartInstance.destroy();
+        chartInstance = null;
       }
 
+      // Jika data pengeluaran kosong, sembunyikan canvas dan tampilkan pesan kosong
       if (data.length === 0) {
+        canvas.style.display = 'none';
+        if (emptyMsg) emptyMsg.classList.remove('hidden');
         return;
       }
+
+      // Tampilkan kembali canvas jika ada data
+      canvas.style.display = 'block';
+      if (emptyMsg) emptyMsg.classList.add('hidden');
 
       chartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -664,13 +683,23 @@
           labels: labels,
           datasets: [{
             data: data,
-            backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#6366f1', '#ec4899']
+            backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899', '#10b981'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
           }]
         },
         options: {
           responsive: true,
+          maintainAspectRatio: true,
           plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+            legend: { 
+              position: 'bottom', 
+              labels: { 
+                boxWidth: 10, 
+                font: { size: 10 },
+                padding: 12
+              } 
+            }
           }
         }
       });
@@ -686,7 +715,7 @@
       const budgetBar = document.getElementById('ai-budget-bar');
 
       if (income === 0 && totalExpense === 0) {
-        aiContainer.innerHTML = `<p class="text-slate-300 italic">Belum ada transaksi di bulan ini untuk dianalisis.</p>`;
+        aiContainer.innerHTML = `<p class="text-slate-300 italic text-[11px]">Belum ada transaksi di bulan ini untuk dianalisis.</p>`;
         budgetBar.style.width = '0%';
         healthScoreEl.innerText = 'Kosong';
         return;
@@ -796,6 +825,60 @@
       window.location.href = `mailto:?subject=${subject}&body=${body}`;
     }
 
+    // FUNGSI LOGIKA SIKLUS GAJI AI
+    function hitungSiklusGaji() {
+      const gaji = parseFloat(document.getElementById('inputGaji').value);
+      const tglGajiInput = document.getElementById('inputTglGaji').value;
+
+      if (!gaji || !tglGajiInput) {
+        alert("Silakan masukkan nominal gaji dan tanggal gajihan berikutnya!");
+        return;
+      }
+
+      const tglGaji = new Date(tglGajiInput);
+      const hariIni = new Date();
+      hariIni.setHours(0,0,0,0);
+
+      // Hitung selisih hari menuju gajihan berikutnya
+      const diffTime = tglGaji - hariIni;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) {
+        alert("Tanggal gajihan berikutnya harus lebih dari hari ini!");
+        return;
+      }
+
+      // Alokasi Standar Manajemen Keuangan (50% Kebutuhan, 30% Keinginan, 20% Tabungan)
+      const tabungan = gaji * 0.20;
+      const sisaPengeluaran = gaji - tabungan;
+      const batasHarian = Math.floor(sisaPengeluaran / diffDays);
+
+      // Tampilkan Hasil
+      document.getElementById('hasilSiklusGaji').classList.remove('hidden');
+      document.getElementById('batasHarian').innerText = `Rp ${batasHarian.toLocaleString('id-ID')} / hari`;
+      document.getElementById('sisaHari').innerText = `${diffDays} hari menuju gajihan berikutnya`;
+
+      // Rekomendasi Boleh vs Dilarang
+      const listBoleh = document.getElementById('listBoleh');
+      const listDilarang = document.getElementById('listDilarang');
+
+      listBoleh.innerHTML = `
+        <li>Kebutuhan pokok maks <b>Rp ${Math.floor(batasHarian * 0.7).toLocaleString('id-ID')}</b>/hari.</li>
+        <li>Tabungan Wajib: <b>Rp ${tabungan.toLocaleString('id-ID')}</b> (20%) disisihkan di awal.</li>
+        <li>Jajan/Hiburan maks <b>Rp ${Math.floor(batasHarian * 0.3).toLocaleString('id-ID')}</b>/hari.</li>
+      `;
+
+      listDilarang.innerHTML = `
+        <li>Transaksi impulsif di atas <b>Rp ${batasHarian.toLocaleString('id-ID')}</b>.</li>
+        <li>Hindari Paylater/pinjaman belanja non-pokok.</li>
+        <li>Mengambil tabungan <b>Rp ${tabungan.toLocaleString('id-ID')}</b> sebelum gajihan.</li>
+      `;
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       const sessionUser = localStorage.getItem('smartmoney_session');
@@ -804,57 +887,6 @@
         initMainApp();
       }
     });
-    // === FUNGSI LOGIKA SIKLUS GAJI AI ===
-function hitungSiklusGaji() {
-  const gaji = parseFloat(document.getElementById('inputGaji').value);
-  const tglGaji = new Date(document.getElementById('inputTglGaji').value);
-  const hariIni = new Date();
-
-  if (!gaji || isNaN(tglGaji.getTime())) {
-    alert("Silakan masukkan nominal gaji dan tanggal gajihan berikutnya!");
-    return;
-  }
-
-  // Hitung selisih hari menuju gajihan berikutnya
-  const diffTime = tglGaji - hariIni;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays <= 0) {
-    alert("Tanggal gajihan berikutnya harus lebih dari hari ini!");
-    return;
-  }
-
-  // Alokasi Standar Manajemen Keuangan (50% Kebutuhan, 30% Keinginan, 20% Tabungan)
-  const tabungan = gaji * 0.20;
-  const sisaPengeluaran = gaji - tabungan;
-  const batasHarian = Math.floor(sisaPengeluaran / diffDays);
-
-  // Tampilkan Hasil
-  document.getElementById('hasilSiklusGaji').classList.remove('hidden');
-  document.getElementById('batasHarian').innerText = `Rp ${batasHarian.toLocaleString('id-ID')} / hari`;
-  document.getElementById('sisaHari').innerText = `${diffDays} hari menuju gajihan berikutnya`;
-
-  // Rekomendasi Boleh vs Dilarang
-  const listBoleh = document.getElementById('listBoleh');
-  const listDilarang = document.getElementById('listDilarang');
-
-  listBoleh.innerHTML = `
-    <li>Kebutuhan pokok maksimal <b>Rp ${Math.floor(batasHarian * 0.7).toLocaleString('id-ID')}</b>/hari.</li>
-    <li>Tabungan/Investasi Wajib: <b>Rp ${tabungan.toLocaleString('id-ID')}</b> disisihkan di awal.</li>
-    <li>Jajan/Hiburan ringan maksimal <b>Rp ${Math.floor(batasHarian * 0.3).toLocaleString('id-ID')}</b>/hari.</li>
-  `;
-
-  listDilarang.innerHTML = `
-    <li>Dilarang transaksi impulsif di atas <b>Rp ${batasHarian.toLocaleString('id-ID')}</b> tanpa perencanaan.</li>
-    <li>Hindari menggunakan Paylater atau pinjaman untuk belanja non-pokok.</li>
-    <li>Mengambil dana tabungan sebesar <b>Rp ${tabungan.toLocaleString('id-ID')}</b> sebelum gajihan.</li>
-  `;
-
-  // Render ulang icon Lucide jika ada
-  if (window.lucide) {
-    lucide.createIcons();
-  }
-}
   </script>
 </body>
 </html>
